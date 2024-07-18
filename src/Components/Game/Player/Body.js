@@ -601,12 +601,12 @@ class Body extends GameplayComponent {
             }
         }
 
-        if ( inputs.jump ) {
-            if (this.distanceToGround < 2.1 && this.distanceToGround !== null) {
-                this.velocity.y = Avern.Config.player.jumpHeight
-                this.emitSignal("spend_energy", {cost: 1})
-            }
-        }
+        // if ( inputs.jump ) {
+        //     if (this.distanceToGround < 2.1 && this.distanceToGround !== null) {
+        //         this.velocity.y = Avern.Config.player.jumpHeight
+        //         this.emitSignal("spend_energy", {cost: 1})
+        //     }
+        // }
 
         // if the player was primarily adjusted vertically we assume it's on something we should consider ground
         this.isOnGround = deltaVector.y > Math.abs( delta * this.velocity.y * 0.25 );

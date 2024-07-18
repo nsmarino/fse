@@ -43,8 +43,8 @@ class Inputs {
             },
         
             interact: {
-                code:"KeyH",
-                name: "H",
+                code:"Space",
+                name: "Space",
                 pressed: false,
 
                 onlyOnce: true,
@@ -52,15 +52,15 @@ class Inputs {
                 trackUp: false,
 
             },
-            jump: {
-                code:"Space",
-                name: "Space",
-                pressed: false,
+            // jump: {
+            //     code:"Space",
+            //     name: "Space",
+            //     pressed: false,
 
-                onlyOnce: true,
-                trackWasPressed: true,
-                trackUp: false,
-            },
+            //     onlyOnce: true,
+            //     trackWasPressed: true,
+            //     trackUp: false,
+            // },
         
             pauseMenu: {
                 code:"KeyM",
@@ -251,7 +251,7 @@ class Inputs {
             },
         
             interact: {
-                code:"KeyF",
+                code:"Space",
                 pressed: false,
 
                 onlyOnce: true,
@@ -259,15 +259,15 @@ class Inputs {
                 trackUp: false,
 
             },
-            jump: {
-                code:"Space",
-                name: "Space",
-                pressed: false,
+            // jump: {
+            //     code:"Space",
+            //     name: "Space",
+            //     pressed: false,
 
-                onlyOnce: true,
-                trackWasPressed: true,
-                trackUp: false,
-            },
+            //     onlyOnce: true,
+            //     trackWasPressed: true,
+            //     trackUp: false,
+            // },
         
             pauseMenu: {
                 code:"KeyC",

@@ -6,7 +6,7 @@
   </script>
 
 {#if $prompt}
-  <div class="interaction-prompt">{$prompt} <span class="prompt-input-key"><span>{$config.leftHanded ? "H": "F"}</span></span></div>
+  <div class="interaction-prompt">{$prompt} <span class="prompt-input-key"><span>Space</span></span></div>
 {/if}
 
 <style>

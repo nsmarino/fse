@@ -85,7 +85,7 @@ function startMenu() {
 		// gsap.set(".intro-placeholder-illus", { display: 'flex'})
 		// gsap.to(".intro-placeholder-illus", { opacity: 1, duration: 1, y: 0, pointerEvents: "auto"  })
 		Avern.Inputs.setConfig(dominantHand)
-		document.querySelector(".intro .next-card-key").innerText = dominantHand === "left" ? "H" : "G"
+		document.querySelector(".intro .next-card-key").innerText = "Space"
 		document.querySelector(".intro-text-container").innerHTML += `<div class="nextCard">${introContent[introIndex].text}</div>`
 		// document.addEventListener("keydown", handleIntroKeyDown)
 		introInterval = setInterval(() => {
@@ -111,14 +111,13 @@ function startMenu() {
 		gsap.set(".title-card", { display: 'flex'})
 		gsap.to(".title-card", { opacity: 1, duration: 1, y: 0, pointerEvents: "auto"  })
 		setTimeout(()=> {
-			document.querySelector(".start-key-indicator").innerText = window.avernKeyboardConfig === "left" ? "H" : "G"
 			gsap.to(".start-key-indicator", { opacity: 1, duration: 1, y: 0, pointerEvents: "auto"  })
 			document.addEventListener("keydown", handleTitleKeyDown)
 		}, 1500)
 	}
 
 	function handleTitleKeyDown(e) {
-		if ((e.code==="KeyH" && window.avernKeyboardConfig==="left") || (e.code==="KeyG" && window.avernKeyboardConfig==="right")) {
+		if (e.code==="Space") {
 			document.removeEventListener("keydown", handleTitleKeyDown)
 			Avern.Sound.introHandler.pause()
             Avern.Sound.musicHandler.play()

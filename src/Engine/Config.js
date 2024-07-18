@@ -44,6 +44,7 @@ const Config = {
     },
     blenderImportSettings: {
         geometryCollectionName: "geometry",
+        // add "foreground" for parts of the environment with collision that camera shouldn't react to
         spawnCollectionName: "spawns",
     }
 }

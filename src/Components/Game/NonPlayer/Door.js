@@ -42,7 +42,6 @@ class Door extends GameplayComponent {
             if (collision.isColliding) {
               this.emitSignal("capsule_collide", {collision, capsule: this.colliderCapsule})
             }
-            console.log("Door sends signal")
             this.emitSignal("has_collider", {collider: this.colliderCapsule, offsetY: 4})
         }
     }

@@ -258,6 +258,7 @@
 .offhand .main-row {
   display: flex;
   gap: 8px;
+  justify-content: end;
   .rightHanded & {
     flex-direction: row-reverse;
     #cameraDown {
