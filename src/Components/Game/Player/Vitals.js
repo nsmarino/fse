@@ -119,7 +119,7 @@ class Vitals extends GameplayComponent {
 
     attachObservers(parent) {
       this.addObserver(parent.getComponent(Body))
-      this.addObserver(parent.getComponent(Actions))
+      // this.addObserver(parent.getComponent(Actions))
       for (const enemy of Avern.State.Enemies) {
           this.addObserver(enemy.getComponent(Enemy))
       }

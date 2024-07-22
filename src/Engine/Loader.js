@@ -451,10 +451,10 @@ class Loader {
         weapons: [
           {
             label: "goatherd-rifle",
-            name: "Goatherd's Rifle",
+            name: "Shepherd's Crookblade",
             id: "goatherd-rifle",
             image: weaponImg,
-            description: "Given to you by the Gatekeeper for fending off antwolves in the hills",
+            description: "A worn shortsword with an unusual curved blade. Cold to the touch, even in the harsh light of the sun.",
             setBonus: "sure_footed",
             actions: [
               {

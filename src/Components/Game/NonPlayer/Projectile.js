@@ -51,7 +51,7 @@ class Projectile extends GameplayComponent {
             if (Avern.Player) {
                 const collision = checkCapsuleCollision({ segment: Avern.Player.getComponent(Body).tempSegment, radius: Avern.Player.getComponent(Body).radius}, projectile.collider)
                 if (collision.isColliding) {
-                  this.emitSignal("monster_attack", { damage: 30,})
+                  this.emitSignal("monster_attack", { damage: 0,})
                   // immediately remove
                   Avern.State.scene.remove(projectile.mesh)
                   this.projectiles = this.projectiles.filter(pro => pro != projectile)

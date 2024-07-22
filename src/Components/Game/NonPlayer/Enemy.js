@@ -20,6 +20,7 @@ import ItemOnMap from './ItemOnMap';
 import Targetable from './Targetable';
 import Targeting from '../Player/Targeting';
 import {get} from 'svelte/store'
+import CombatMode from '../Player/CombatMode';
 
 class Enemy extends GameplayComponent {
   constructor(gameObject, spawnPoint) {
@@ -298,7 +299,7 @@ class Enemy extends GameplayComponent {
           if(!Avern.State.playerDead && this.checkTarget()) {
             switch(this.enemyType) {
               case "sword":
-                this.emitSignal("monster_attack", {damage: 25, percentage: 0.5})
+                this.emitSignal("monster_attack", {damage: 0, percentage: 0.5})
                 break;
               case "bow":
                 const projectileDestination = new THREE.Vector3().copy(Avern.Player.transform.position)
@@ -568,7 +569,8 @@ class Enemy extends GameplayComponent {
     this.addObserver(Avern.Player.getComponent(Body))
     this.addObserver(Avern.Player.getComponent(FollowCamera))
     this.addObserver(Avern.Player.getComponent(Vitals))
-    this.addObserver(Avern.Player.getComponent(Actions))
+    this.addObserver(Avern.Player.getComponent(CombatMode))
+    // this.addObserver(Avern.Player.getComponent(Actions))
   }
 }
 

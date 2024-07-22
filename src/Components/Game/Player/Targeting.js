@@ -6,6 +6,7 @@ import Body from "./Body"
 import FollowCamera from "./FollowCamera"
 import Actions from "./Actions"
 import Enemy from "../NonPlayer/Enemy"
+import CombatMode from './CombatMode';
     
 class Targeting extends GameplayComponent {
     constructor(gameObject, ) {
@@ -79,7 +80,7 @@ class Targeting extends GameplayComponent {
             this.targetIndex=null
         }
 
-        // This needs to be refactored to be action-specific :)
+        // This needs to be refactored to be action-specific :) ... UPDATE 7.18.24 - Dont know what this means.
         this.checkTarget()
     }
 
@@ -137,7 +138,6 @@ class Targeting extends GameplayComponent {
                 if (data.visible) {
                     this.targetsMap.set(data.id, {proximity: data.proximity, y:data.y, order: null})
                 } else {
-                    console.log("Delete from targetsMap")
                     this.targetsMap.delete(data.id)
                 }
                 if (data.dead) {
@@ -159,7 +159,8 @@ class Targeting extends GameplayComponent {
         }
         this.addObserver(parent.getComponent(Body))
         this.addObserver(parent.getComponent(FollowCamera))
-        this.addObserver(parent.getComponent(Actions))
+        // this.addObserver(parent.getComponent(Actions))
+        this.addObserver(parent.getComponent(CombatMode))
     }
 }
 

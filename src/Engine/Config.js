@@ -12,6 +12,7 @@ import InteractionOverlay from "../Components/Interface/InteractionOverlay"
  import Notices from "../Components/Interface/Notices"
 import Landmine from "../Components/Game/Player/Landmine"
 import ParticleFX from "../Components/Game/Player/ParticleFX"
+import CombatMode from "../Components/Game/Player/CombatMode"
 
 const Config = {
     world: {
@@ -22,7 +23,8 @@ const Config = {
         include: true,
         jumpHeight: 14,
         components: [
-            Actions,
+            // Actions,
+            CombatMode,
             Interaction,
             FollowCamera,
             Body,

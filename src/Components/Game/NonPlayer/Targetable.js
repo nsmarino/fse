@@ -14,6 +14,7 @@ import Targeting from '../Player/Targeting';
 import Actions from '../Player/Actions';
   
 import GameplayComponent from '../../_Component';
+import CombatMode from '../Player/CombatMode';
 
 class Targetable extends GameplayComponent {
     constructor(gameObject, canBeAttacked, targetRingRadius) {
@@ -133,7 +134,8 @@ class Targetable extends GameplayComponent {
         this.addObserver(Avern.Player.getComponent(Targeting))
         this.addObserver(Avern.Player.getComponent(Body))
         this.addObserver(Avern.Player.getComponent(FollowCamera))    
-        this.addObserver(Avern.Player.getComponent(Actions))
+        this.addObserver(Avern.Player.getComponent(CombatMode))
+        // this.addObserver(Avern.Player.getComponent(Actions))
     }
 }
 

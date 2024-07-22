@@ -20,9 +20,9 @@
   background: linear-gradient(var(--avern-brown), var(--avern-off-black));
   border: 1px solid var(--avern-off-black);
 }
-.player-state .bars .energy, .player-state .bars .mana  {
+.player-state .bars .energy  {
   height: 8px;
-  width: 200px;
+  width: 300px;
   background: linear-gradient(var(--avern-brown), var(--avern-off-black));
   border: 1px solid var(--avern-off-black);
 }
