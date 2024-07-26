@@ -62,14 +62,21 @@ class FollowCamera extends GameplayComponent {
             if ((this.playerCameraTarget.getWorldPosition(this.comparisonVector).distanceTo(this.cameraTarget.getWorldPosition(this.comparisonVector2)) > 0.2 )) {
                 this.playerCameraTarget.getWorldPosition(this.targetVector)
                 this.playerCameraPlaceholder.getWorldPosition(this.cameraPosVector)
+
+                const obstaclePoint = this.isCameraViewBlocked(this.targetVector, this.cameraPosVector); 
+                if (obstaclePoint) this.cameraPosVector = obstaclePoint
+
                 this.camera.position.lerp(this.cameraPosVector, 0.3)
                 this.cameraTarget.position.lerp(this.targetVector, 0.3)
 
-        
                 this.camera.lookAt(this.cameraTarget.position)
             } else {
                 this.playerCameraTarget.getWorldPosition(this.cameraTarget.position)
                 this.playerCameraPlaceholder.getWorldPosition(this.cameraPosVector)
+
+                const obstaclePoint = this.isCameraViewBlocked(this.cameraTarget.position, this.cameraPosVector);
+                if (obstaclePoint) this.cameraPosVector = obstaclePoint
+                
                 this.camera.position.copy(this.cameraPosVector)
                 this.camera.lookAt(this.cameraTarget.position)   
             }     
@@ -101,18 +108,16 @@ class FollowCamera extends GameplayComponent {
         }
     }
     
-    isCameraViewBlocked(targetPosition, cameraPosition, collider) {
-
+    isCameraViewBlocked(targetPosition, cameraPosition) {
         const towardsCamera = cameraPosition.clone().sub(targetPosition);
         const raycaster = new THREE.Raycaster(targetPosition, towardsCamera.normalize());
-
-        const intersects = raycaster.intersectObject(collider, true);
-
-        if (intersects.length === 0) {
+        const intersects = raycaster.intersectObjects(Avern.State.scene.children, true)
+        const bgObj = intersects.filter(ch=>!ch.distanceToRay && ch.object.userData?.gltfExtensions.EXT_collections.collections[0]==="background")
+        if (bgObj.length === 0) {
             return false; // No obstacles, camera view is not blocked
         }
 
-        if (intersects[0].point.distanceTo(targetPosition) < cameraPosition.distanceTo(targetPosition)) return intersects[0].point;
+        if (bgObj[0].point.distanceTo(targetPosition) < cameraPosition.distanceTo(targetPosition)) return bgObj[0].point;
 
         return false; // Camera view is partially blocked
     }

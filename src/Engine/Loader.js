@@ -1,9 +1,11 @@
 import sanityClient from "../sanityClient"
 
+import testFile from "../../assets/levels/july/TestLevel.glb"
+
 import demoCourtyard from "../../assets/levels/demo-courtyard.gltf"
 import demoCliffs from "../../assets/levels/demo-cliffs.gltf"
 import demoSwamp from "../../assets/levels/demo-swamp.gltf"
-import yukaPaths from "../../assets/levels/my-navmesh.gltf"
+import yukaPaths from "../../assets/levels/july/TestNavmesh.gltf"
 import {writable, derived, get} from "svelte/store"
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -54,14 +56,9 @@ class Loader {
     }
 
     async loadFromCMS(useSavedGame) {
-      const query = `*[_type == "settings"]{
-        "mesh": mesh.asset->url,
-      }`
-      const responseFromSanity = await sanityClient.fetch(query)
-
       // 'content' should only be interested in what's present the actual scene file. the Store is used to determine what actually spawns in the game
       Avern.Content = {
-        baseFile: demoCourtyard,
+        baseFile: testFile,
         items:[
           {
             label: "rear-entrance",
@@ -753,22 +750,12 @@ class Loader {
 
       if (Avern.Config.player.include) this.initPlayer(scene, to)
       if (Avern.Config.interface.include) this.initInterface(scene)
-      // if (!get(Avern.Store.openingRemarksShown)) {
-      //   setTimeout(() => {
-      //     Avern.Store.openingRemarksVisible.set(true)
-      //     Avern.Store.openingRemarksShown.set(true)
-      //   }, 3000)
-      // }
+
     }
 
     async initNavmesh(file) {
 			const loader = new YUKA.NavMeshLoader();
       const navmesh = await loader.load(file)
-
-      // const shownav = await new GLTFLoader().loadAsync(file)
-      // Avern.State.scene.add(shownav.scene)
-      // shownav.scene.children[0].material.wireframe = true
-
       return navmesh
     }
 

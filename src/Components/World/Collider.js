@@ -4,10 +4,10 @@ import GameplayComponent from '../_Component';
 import Body from '../Game/Player/Body';
 
 class Collider extends GameplayComponent {
-    constructor(gameObject, baseFile) {
+    constructor(gameObject, scene) {
         super(gameObject)
 
-        const geometryMeshes = baseFile.children.filter(child=> child.isMesh && child.userData.gltfExtensions.EXT_collections.collections[0]==="geometry")
+        const geometryMeshes = scene.children.filter(child=> child.isMesh && (child.userData.gltfExtensions.EXT_collections.collections[0]==="background" || child.userData.gltfExtensions.EXT_collections.collections[0]==="foreground"))    
         if (geometryMeshes.length===0) return;
   
         let environment = new THREE.Group();
@@ -29,12 +29,13 @@ class Collider extends GameplayComponent {
         this.collider.name = "worldCollider"
         this.collider.material.wireframe = true;
         this.collider.material.opacity = 1;
-        this.collider.visible = false;
-  
+        this.collider.visible = false; // collider is the ... collision
+
         gameObject.transform.parent.add( this.collider );
         gameObject.transform.parent.add( environment );
 
         Avern.State.env = environment
+        this.collider.layers.set(1)
         Avern.State.collider = this.collider
     }
 
