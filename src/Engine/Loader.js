@@ -1,30 +1,36 @@
 import sanityClient from "../sanityClient"
+import gsap from "gsap"
 
-import testFile from "../../assets/levels/july/TestLevel.glb"
 
-import demoCourtyard from "../../assets/levels/demo-courtyard.gltf"
-import demoCliffs from "../../assets/levels/demo-cliffs.gltf"
-import demoSwamp from "../../assets/levels/demo-swamp.gltf"
-import yukaPaths from "../../assets/levels/july/TestNavmesh.gltf"
 import {writable, derived, get} from "svelte/store"
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+
+import testFile from "../../assets/levels/TestLevel.glb"
+
 import yoshuaHaystack from "../../assets/npcs/yoshua_haystack.gltf"
 import gatekeeperDismayed from "../../assets/npcs/fse--gatekeeper.gltf"
 import goatEating from "../../assets/npcs/fse--goat.gltf"
 import smithmasterStanding from "../../assets/npcs/fse--smithmaster.gltf"
 
-import { Pathfinding, PathfindingHelper } from 'three-pathfinding';
-import * as YUKA from "yuka"
-
 import { acceleratedRaycast } from 'three-mesh-bvh';
-import gsap from "gsap"
+THREE.Mesh.prototype.raycast = acceleratedRaycast;
+
 import weaponImg from "../../assets/ui/weapon.svg"
 import aimedShot from "../../assets/ui/aimed-shot.svg"
 import bayonet from "../../assets/ui/bayonet.svg"
 import muzzleBlast from "../../assets/ui/muzzle-blast.svg"
 import propelSelf from "../../assets/ui/propel-self.svg"
-THREE.Mesh.prototype.raycast = acceleratedRaycast;
+
+import IdleExplore from "../../assets/anims/mixamo/IdleExplore.glb"
+import Forward from "../../assets/anims/mixamo/Forward.glb"
+import Back from "../../assets/anims/mixamo/Back.glb"
+import StandTurn from "../../assets/anims/mixamo/StandTurn.glb"
+import RunTurn from "../../assets/anims/mixamo/RunTurn.glb"
+import IdleCombat from "../../assets/anims/mixamo/IdleCombat.glb"
+import StrafeRight from "../../assets/anims/mixamo/StrafeRight.glb"
+import StrafeLeft from "../../assets/anims/mixamo/StrafeLeft.glb"
+import Die from "../../assets/anims/mixamo/Die.glb"
 
 import Enemy from "../Components/Game/NonPlayer/Enemy";
 import Targetable from "../Components/Game/NonPlayer/Targetable";
@@ -32,7 +38,6 @@ import Projectile from "../Components/Game/NonPlayer/Projectile";
 
 import Interaction from "../Components/Game/NonPlayer/Interaction";
 
-// import Fountain from "../Components/Game/NonPlayer/Fountain";
 import ItemOnMap from "../Components/Game/NonPlayer/ItemOnMap";
 import WeaponOnMap from "../Components/Game/NonPlayer/WeaponOnMap";
 import Door from "../Components/Game/NonPlayer/Door";
@@ -48,6 +53,18 @@ import yoshuaSerious from "../../assets/portraits/yoshua/serious.svg"
 import gatekeeperPortrait from "../../assets/portraits/gatekeeper/default.svg"
 import smithmasterPortrait from "../../assets/portraits/smithmaster/default.svg"
 import esthelPortrait from "../../assets/portraits/esthel/default.svg"
+
+const mixamoAnims = [
+  IdleExplore,
+  IdleCombat,
+  Forward,
+  Back,
+  RunTurn,
+  StandTurn,
+  StrafeLeft,
+  StrafeRight,
+  Die
+]
 
 class Loader {
     constructor() {
@@ -738,25 +755,26 @@ class Loader {
       lights.addComponent(Lights)
 
       if (Avern.Content.baseFile) {
-        const res = await new GLTFLoader().loadAsync(Avern.Content.baseFile)
+        const gltfLoader = new GLTFLoader()
+        const res = await gltfLoader.loadAsync(Avern.Content.baseFile)
         const gltfScene = res.scene;
         gltfScene.updateMatrixWorld( true );
-        Avern.yukaNavmesh = await this.initNavmesh(yukaPaths)
+
         const collider = Avern.GameObjects.createGameObject(scene, "collider")
         collider.addComponent(Collider, gltfScene)
-  
+
+        const anims = []
+        for (const anim of mixamoAnims) {
+          const loadedAnim = await gltfLoader.loadAsync(anim)
+          anims.push(...loadedAnim.animations)
+        }
+        Avern.mixamoAnims = anims
         this.initNonPlayerFromBaseFile(gltfScene,scene)
       }
 
       if (Avern.Config.player.include) this.initPlayer(scene, to)
       if (Avern.Config.interface.include) this.initInterface(scene)
 
-    }
-
-    async initNavmesh(file) {
-			const loader = new YUKA.NavMeshLoader();
-      const navmesh = await loader.load(file)
-      return navmesh
     }
 
     initNonPlayerFromBaseFile(baseFile, scene) {
@@ -874,10 +892,6 @@ class Loader {
       }
     }
 
-    clearScene() {
-
-    }
-
     async switchScene(toLabel){
       console.log("Go to", toLabel)
       gsap.to(".mask", { opacity: 0, duration: 2, delay: 2})
@@ -894,7 +908,7 @@ class Loader {
         case "player-restart":
           Avern.Sound.playSceneMusic("courtyard", 0.05)
 
-          Avern.Content.baseFile=demoCourtyard
+          Avern.Content.baseFile=testFile
           Avern.Store.player.update(player =>
             {
               const updatedPlayer = {
@@ -926,9 +940,6 @@ class Loader {
       Avern.GameObjects.attachObservers() // Listen for signals from other gameObjects' components.
 
     }
-
-    // add interaction to scene if condition has been met.
-    addToScene(){}
 }
 
 export default Loader

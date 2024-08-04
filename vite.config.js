@@ -16,5 +16,8 @@ export default defineConfig({
       },
     },
   },  plugins: [svelte()],
-  assetsInclude: ['**/*.gltf', '**/*.glb', '**/*.hdr']
+  assetsInclude: ['**/*.gltf', '**/*.glb', '**/*.hdr', "**/*.fbx"],
+  // optimizeDeps: {
+  //   exclude: ['recast-navigation']
+  // }
 })

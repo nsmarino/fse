@@ -1,6 +1,9 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import playerGltf from "../../../../assets/pc/fse--PC-DEMO.gltf"
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
+
+import playerGltf from "../../../../assets/actors/TestActor.glb"
+
 import GameplayComponent from '../../_Component';
 import Actions from "./Actions"
 import InteractionOverlay from '../../Interface/InteractionOverlay';
@@ -8,7 +11,7 @@ import Enemy from '../NonPlayer/Enemy';
 import Vitals from './Vitals';
 import Inventory from './Inventory';
 import gsap from "gsap"
-import {get} from "svelte/store"
+import { get } from "svelte/store"
 import {generateCapsuleCollider} from "../../../helpers"
 
 const RESET = "RESET"
@@ -66,176 +69,96 @@ class Body extends GameplayComponent {
         this.tempSegment = new THREE.Line3();
         this.capsuleCollisionDelta = new THREE.Vector3()
 
-        const initFromGLTF = async () => {
+        const init = async () => {
             this.gltf = await new GLTFLoader().loadAsync(playerGltf)
-            this.gltf.scene.name = gameObject.name
 
+            this.gltf.scene.name = gameObject.name
+            // this.gltf.scene.rotation.x = -Math.PI / 2
             this.transform.add(this.gltf.scene)
             this.gltf.scene.traverse(child => {
                 child.castShadow = true;
                 child.receiveShadow = true;
                 child.frustumCulled = false;
+
+                // Something is still weird here...8.3.24
                 // weird hardcoding for mixamo model :(
-                child.translateY(-0.9)
-                child.translateZ(.9)
+                child.translateY(-1.82)
+                // child.translateZ(.9)
             })
 
-            // Add rifle to hand
-            const handBone = this.gltf.scene.getObjectByName("mixamorigRightHand")
-            this.rifleMesh = this.gltf.scene.getObjectByName("RIFLE_IN_HAND")
-            this.rifleMesh.scale.set(0.3,0.3,0.3);
-            handBone.add(this.rifleMesh)
-            this.rifleMesh.visible  = false
-
-            const spineBone = this.gltf.scene.getObjectByName("mixamorigSpine2")
-            this.rifleOnBackMesh = this.gltf.scene.getObjectByName("RIFLE_ON_BACK")
-            this.rifleOnBackMesh.scale.set(0.3,0.3,0.3);
-            this.rifleOnBackMesh.position.z -= 10
-            this.rifleOnBackMesh.position.y += 20
-            this.rifleOnBackMesh.position.x += 20
-            spineBone.add(this.rifleOnBackMesh)
+            // Hidden by default; weapon associated with first Action
+            // is visible in Explore and used for white attacks;
+            // all other weapons have visibility toggled when their
+            // Actions are used
+            const WeaponNames = [
+                "TestWeapon"
+            ]
+            for (const weaponName of WeaponNames) {
+                const weapon = this.gltf.scene.getObjectByName(weaponName)
+                weapon.visible = false
+            }
 
             this.transform.add(this.gltf.scene)
 
             this.mixer = new THREE.AnimationMixer( this.gltf.scene );
 
-            const clips = this.gltf.animations
+            const clips = Avern.mixamoAnims
+            
             // Player actions
             this.idle = {
                 id: "idle",
-                anim: this.setUpAnim(clips, "IDLE", true, false),
+                anim: this.setUpAnim(clips, "IdleExplore", true, false),
+                crucialFrame: null,
+                canInterrupt: false,
+            }
+            this.idleCombat = {
+                id: "idle_combat",
+                anim: this.setUpAnim(clips, "IdleCombat", true, false),
                 crucialFrame: null,
                 canInterrupt: false,
             }
             this.run = {
                 id: "forward",
-                anim: this.setUpAnim(clips, "FORWARD", true, false),
+                anim: this.setUpAnim(clips, "Forward", true, false),
                 crucialFrame: null,
                 canInterrupt: false,
             }
             this.runBack = {
                 id: "back",
-                anim: this.setUpAnim(clips, "BACK", true, false),
+                anim: this.setUpAnim(clips, "Back", true, false, 1),
                 crucialFrame: null,
                 canInterrupt: false,
             }
             this.runTurn = {
                 id: "run_turn",
-                anim: this.setUpAnim(clips, "RUNNING_TURN", false, true),
+                anim: this.setUpAnim(clips, "RunTurn", false, true),
                 crucialFrame: null,
                 canInterrupt: false,
             }
             this.idleTurn = {
                 id: "idle_turn",
-                anim: this.setUpAnim(clips, "IDLE_TURN", false, true),
+                anim: this.setUpAnim(clips, "StandTurn", false, true),
                 crucialFrame: null,
                 canInterrupt: false,
             }
             this.strafeLeft = {
                 id: "strafe_left",
-                anim: this.setUpAnim(clips, "STRAFE_L", true, false),
+                anim: this.setUpAnim(clips, "StrafeLeft", true, false),
                 crucialFrame: null,
                 canInterrupt: false,
             },
             this.strafeRight = {
                 id: "strafe_right",
-                anim: this.setUpAnim(clips, "STRAFE_R", true, false),
+                anim: this.setUpAnim(clips, "RightStrafe", true, false),
                 crucialFrame: null,
                 canInterrupt: false,
             },
             this.death = {
                 id: "death",
-                anim: this.setUpAnim(clips, "DEATH", false, true),
+                anim: this.setUpAnim(clips, "Die", false, true),
                 crucialFrame: null,
                 canInterrupt: false,
             }
-            this.load = {
-                id: "load",
-                anim: this.setUpAnim(clips, "LOAD", false, false, 1.1),
-                crucialFrame: null,
-                canInterrupt: false,
-            }
-            this.withdraw = {
-                id: "withdraw",
-                anim: this.setUpAnim(clips, "WITHDRAW_BLADE", false, false, 1.1),
-                crucialFrame: null,
-                canInterrupt: false,
-            }
-            this.loadShotgun = {
-                id: "load_shotgun",
-                anim: this.setUpAnim(clips, "LOAD", false, false, 2.6),
-                crucialFrame: null,
-                canInterrupt: false,
-            }
-            this.react = {
-                id: "react",
-                anim: this.setUpAnim(clips, "REACT_SMALL", false, false),
-                crucialFrame: null,
-                canInterrupt: false,
-            }
-            this.shoot = {
-                id: "shoot",
-                anim: this.setUpAnim(clips, "KNEEL_AND_FIRE_RIFLE", false, true, 3.5),
-                crucialFrame: 50,
-                canInterrupt: false,
-            }
-            this.fire = {
-                id: "fire",
-                anim: this.setUpAnim(clips, "KNEEL_AND_FIRE_RIFLE", false, true, 3),
-                crucialFrame: 50,
-                canInterrupt: true,
-            }
-            this.club = {
-                id: "club",
-                anim: this.setUpAnim(clips, "RIFLE_PUNCH", false, true),
-                crucialFrame: 50,
-                canInterrupt: true,
-            }
-            this.slash = {
-                id: "slash",
-                anim: this.setUpAnim(clips, "SLASH", false, true, 1),
-                crucialFrame: 30,
-                canInterrupt: false,
-            }
-            this.shotgun = {
-                id: "shotgun",
-                anim: this.setUpAnim(clips, "SHOTGUN", false, true, 2.5),
-                crucialFrame: 45,
-                canInterrupt: true,
-            }
-            this.drink = {
-                id: "drink",
-                anim: this.setUpAnim(clips, "DRINK", false, true, 1.5),
-                crucialFrame: null,
-                canInterrupt: true,
-            }
-
-            // ceremonial dagger:
-            this.pommel_smack = {
-                id: "pommel_smack",
-                anim: this.setUpAnim(clips, "POMMEL_SMACK", false, true, 1),
-                crucialFrame: 30,
-                canInterrupt: true,
-            }
-            this.thrust_slash = {
-                id: "thrust_slash",
-                anim: this.setUpAnim(clips, "THRUST_SLASH", false, true, 1),
-                crucialFrame: 30,
-                canInterrupt: true,
-            }
-            this.open_artery = {
-                id: "open_artery",
-                anim: this.setUpAnim(clips, "OPEN_ARTERY", false, true, 1),
-                crucialFrame: 30,
-                canInterrupt: true,
-            }
-            this.lose_yourself = {
-                id: "lose_yourself",
-                anim: this.setUpAnim(clips, "BATTLE_CRY", false, true, 1),
-                crucialFrame: 30,
-                canInterrupt: true,
-            }
-
             this.action = this.idle
             this.fadeIntoAction(this.action, 0, false)
 
@@ -250,7 +173,7 @@ class Body extends GameplayComponent {
               this.visionRadius
             )
         }
-        initFromGLTF()
+        init()
     }
 
     setUpAnim(fileClips, clipName, loop, clamp, duration) {
@@ -348,10 +271,10 @@ class Body extends GameplayComponent {
                 // this.gameObject.transform.rotateY(Math.PI)
             }
             if ( inputs.forwardWasPressed) {
-                if (this.rifleMesh && this.rifleOnBackMesh) {
-                    this.rifleOnBackMesh.visible = true
-                    this.rifleMesh.visible = false
-                }
+                // if (this.rifleMesh && this.rifleOnBackMesh) {
+                //     this.rifleOnBackMesh.visible = true
+                //     this.rifleMesh.visible = false
+                // }
                 this.fadeIntoAction(this.run, 0.2, REPLACE)
                 Avern.Sound.fxHandler.currentTime = 0
                 Avern.Sound.fxHandler.play()
@@ -403,8 +326,8 @@ class Body extends GameplayComponent {
     onSignal(signalName, data={}) {
         switch(signalName) {
             case "casting_start":
-                this.rifleMesh.visible = true
-                this.rifleOnBackMesh.visible = false
+                // this.rifleMesh.visible = true
+                // this.rifleOnBackMesh.visible = false
                 this.fadeIntoAction(this[data.animation], 0.1, REPLACE)
                 break;
             case "casting_finish":
@@ -418,10 +341,10 @@ class Body extends GameplayComponent {
                 Avern.Sound.fxHandler.pause()
 
                 this.fadeIntoAction(this[data.action.animation],0.1, REPLACE)
-                if (this.rifleMesh && this.rifleOnBackMesh && data.action.id !== "set_land_mine") {
-                    this.rifleMesh.visible = true
-                    this.rifleOnBackMesh.visible = false
-                }
+                // if (this.rifleMesh && this.rifleOnBackMesh && data.action.id !== "set_land_mine") {
+                //     this.rifleMesh.visible = true
+                //     this.rifleOnBackMesh.visible = false
+                // }
 
                 break;
 

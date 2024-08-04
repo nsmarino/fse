@@ -1,8 +1,10 @@
 import * as THREE from 'three';
 import gsap from "gsap"
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import * as YUKA from "yuka"
 import GameplayComponent from '../../_Component';
+
+import { NavMeshQuery } from 'recast-navigation';
+
 import { 
   generateCapsuleCollider, 
   checkCapsuleCollision, 
@@ -27,6 +29,9 @@ class Enemy extends GameplayComponent {
     super(gameObject)
     this.gameObject = gameObject
     this.gameObject.transform.position.copy(spawnPoint.position)
+
+    // find player even if they're slightly off the navmesh
+    this.navMeshSearchThreshold = new THREE.Vector3(3,3,3)
 
     // Array of vectors for enemy to patrol thru
     this.patrolPoints = []
@@ -370,8 +375,10 @@ class Enemy extends GameplayComponent {
     } 
 
       if (!this.path || this.path.length===0) {
-          const path = Avern.yukaNavmesh.findPath(new YUKA.Vector3().copy(this.gameObject.transform.position), new YUKA.Vector3().copy(destination))
-          this.path = path
+        // REFACTOR TO USE RECAST!
+        
+        // const path = Avern.yukaNavmesh.findPath(new YUKA.Vector3().copy(this.gameObject.transform.position), new YUKA.Vector3().copy(destination))
+          this.path = []
       }
       if (!this.path || this.path.length===0) return;
       let targetPos = this.path[0];
@@ -392,27 +399,28 @@ class Enemy extends GameplayComponent {
   }
 
   followPursuePath(deltaTime) {
-    // we want destination to be a point on the surface underneath player to account for jump etc
-    const playerPosition = Avern.Player.transform.position
-    const groundRaycast = new THREE.Raycaster(playerPosition, new THREE.Vector3(0, -1, 0))
-    groundRaycast.firstHitOnly = true
-    const destination = groundRaycast.intersectObject(Avern.State.collider)[0] ? groundRaycast.intersectObject(Avern.State.collider)[0].point : null
 
-    if (!destination) return
-    if (this.checkTarget() && this.gameObject.transform.position.distanceTo(destination) < this.actionRange) {
+    if (this.checkTarget() && this.gameObject.transform.position.distanceTo(Avern.Player.transform.position) < this.actionRange) {
         this.behavior = "attack"
         this.fadeIntoAction(this.attack, 0)
         return
     } else {
-        if (this.prevPlayerPosition.distanceTo(destination) > 0.05 || !this.path) {
-            const path = Avern.yukaNavmesh.findPath(new YUKA.Vector3().copy(this.gameObject.transform.position), new YUKA.Vector3().copy(destination))
-            this.path = path
+        if (this.prevPlayerPosition.distanceTo(Avern.Player.transform.position) > 0.05 || !this.path) {
+          const navMeshQuery = new NavMeshQuery(Avern.navMesh)
+
+          const enemyPointOnNavmesh = navMeshQuery.findClosestPoint(this.gameObject.transform.position);
+        
+          const targetDest = navMeshQuery.findClosestPoint(Avern.Player.transform.position, { 
+            halfExtents: this.navMeshSearchThreshold 
+          })
+
+          const recastResponse = navMeshQuery.computePath(this.gameObject.transform.position, targetDest.point)
+          this.path = recastResponse.path
         }
-        if (!this.path) return;
-        // can probably do a check here to decide whether to use [0] or [1]
-        let targetPosition = this.path[1];
 
         if (!this.path[1]) return
+        let targetPosition = new THREE.Vector3(this.path[1].x,this.path[1].y,this.path[1].z);
+
         this.velocity = new THREE.Vector3().copy(targetPosition.clone().sub( this.gameObject.transform.position ));
         updateRotationToFacePoint(this.gameObject.transform, targetPosition, this.lerpFactor)
         if (this.velocity.lengthSq() > 0.1 ) {
@@ -424,7 +432,7 @@ class Enemy extends GameplayComponent {
         } else {
           this.path.shift();
         }
-        this.prevPlayerPosition.copy(destination)
+        this.prevPlayerPosition.copy(Avern.Player.transform.position)
     }
   }
 
@@ -570,7 +578,6 @@ class Enemy extends GameplayComponent {
     this.addObserver(Avern.Player.getComponent(FollowCamera))
     this.addObserver(Avern.Player.getComponent(Vitals))
     this.addObserver(Avern.Player.getComponent(CombatMode))
-    // this.addObserver(Avern.Player.getComponent(Actions))
   }
 }
 

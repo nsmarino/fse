@@ -87,7 +87,7 @@ class FollowCamera extends GameplayComponent {
 
         switch(signalName) {
           case "targeted_object":
-            // console.log("Targeted object,", data.object.transform.position)
+            // Update to handle Background blocking
             if (!this.targeting) return
             data.object.transform.getWorldPosition(this.targetVector)
             this.targetVector.y+=1
@@ -112,7 +112,7 @@ class FollowCamera extends GameplayComponent {
         const towardsCamera = cameraPosition.clone().sub(targetPosition);
         const raycaster = new THREE.Raycaster(targetPosition, towardsCamera.normalize());
         const intersects = raycaster.intersectObjects(Avern.State.scene.children, true)
-        const bgObj = intersects.filter(ch=>!ch.distanceToRay && ch.object.userData?.gltfExtensions.EXT_collections.collections[0]==="background")
+        const bgObj = intersects.filter(ch=>!ch.distanceToRay && ch.object.userData?.gltfExtensions?.EXT_collections.collections[0]==="background")
         if (bgObj.length === 0) {
             return false; // No obstacles, camera view is not blocked
         }
