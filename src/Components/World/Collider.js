@@ -42,7 +42,6 @@ class Collider extends GameplayComponent {
 
         const initRecast = async () => {
             await init()
-            console.log("Geometry meshes provided:", geometryMeshes  )
             const { success, navMesh } = threeToSoloNavMesh(geometryMeshes, {})
             Avern.navMesh = navMesh
             // this.navMeshHelper = new NavMeshHelper({ navMesh });

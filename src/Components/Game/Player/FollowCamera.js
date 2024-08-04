@@ -35,11 +35,8 @@ class FollowCamera extends GameplayComponent {
         this.playerCameraTarget.position.y += 1
         this.playerCameraPlaceholder = new THREE.Object3D()
         this.playerCameraTarget.add(this.playerCameraPlaceholder)
-        this.playerCameraPlaceholder.position.set(0,1.5,-18)
+        this.playerCameraPlaceholder.position.set(0,0.5,-12)
         this.gameObject.transform.add(this.playerCameraTarget)
-
-        // console.log(OrbitControls)
-        // this.controls = new OrbitControls( this.camera, document.querySelector("canvas") );
 
         window.addEventListener( 'resize', function () {
             this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -48,8 +45,6 @@ class FollowCamera extends GameplayComponent {
     }
 
     update() {
-        // this.controls.target = Avern.Player.transform.position
-        // set rotation with inputs
         const inputs = Avern.Inputs.getInputs()
         if (!this.targeting) {
 
@@ -87,12 +82,17 @@ class FollowCamera extends GameplayComponent {
 
         switch(signalName) {
           case "targeted_object":
-            // Update to handle Background blocking
             if (!this.targeting) return
             data.object.transform.getWorldPosition(this.targetVector)
             this.targetVector.y+=1
+
             this.playerCameraPlaceholder.getWorldPosition(this.cameraPosVector)
+
+            const obstaclePoint = this.isCameraViewBlocked(this.targetVector, this.cameraPosVector);
+            if (obstaclePoint) this.cameraPosVector = obstaclePoint
+
             this.cameraTarget.position.lerp(this.targetVector, this.targetLerp)
+
             this.camera.position.lerp(this.cameraPosVector, this.cameraLerp)
             this.camera.lookAt(this.cameraTarget.position)    
             break;

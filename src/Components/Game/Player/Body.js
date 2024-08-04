@@ -82,8 +82,8 @@ class Body extends GameplayComponent {
 
                 // Something is still weird here...8.3.24
                 // weird hardcoding for mixamo model :(
-                child.translateY(-1.82)
-                // child.translateZ(.9)
+                child.translateY(-0.8)
+                child.translateZ(1)
             })
 
             // Hidden by default; weapon associated with first Action
