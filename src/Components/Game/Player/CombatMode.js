@@ -25,7 +25,6 @@ class CombatMode extends GameplayComponent {
         if ( inputs.interact && !this.inCombat) {
             console.log("Interact, not in combat")
             if (this.target && this.targetCanBeAttacked) {
-                console.log("Target can be attacked")
                 this.inCombat = true
                 this.combatTicking = true
                 this.emitSignal("enter_combat")
@@ -53,6 +52,9 @@ class CombatMode extends GameplayComponent {
             // perform Default Action (does not use energy or grant combat points...or do much damage)
             console.log("Perform default action!")
             this.emitSignal("combat_round", { action: null })
+
+            // TEMP:
+            this.combatTicking = true
         }
     }
 
@@ -61,21 +63,17 @@ class CombatMode extends GameplayComponent {
         switch(signalName) {
             case "active_target":
                 this.target = true
-                console.log("Recive data canBeAttacked", data)
                 this.targetCanBeAttacked = data.canBeAttacked
                 break;
             case "targeted_object":
                 this.targetDistance = Avern.Player.transform.position.distanceTo(data.object.transform.position)
                 break;
             case "clear_target":
+                console.log("Clear target")
                 this.target = false
+                // if (blah blah blah)
                 this.inCombat = false // refine later to only leave combat if untargeted by all enemies
-                break;
-            case "start_combat":
-                console.log("Start Combat")
-                break;
-            case "end_combat":
-                console.log("Start Combat")
+                this.emitSignal("end_combat")
                 break;
             case "queue_action":
                 console.log("Next Action")
@@ -84,8 +82,9 @@ class CombatMode extends GameplayComponent {
     }
 
     attachObservers(parent) {
-        this.addObserver(parent.getComponent(Actions))
         this.addObserver(parent.getComponent(Body))
+
+        // this.addObserver(parent.getComponent(Actions))
         // this.addObserver(parent.getComponent(Vitals))
         // this.addObserver(parent.getComponent(Inventory))
         // for (const enemy of Avern.State.Enemies) {

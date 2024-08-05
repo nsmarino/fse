@@ -28,6 +28,8 @@ class Body extends GameplayComponent {
         this.velocity = new THREE.Vector3();
         this.transform = gameObject.transform
 
+        this.inCombat = false
+
         this.turnSpeed = 0.005
 
         this.targeting = false
@@ -267,14 +269,8 @@ class Body extends GameplayComponent {
                 } else {
                     this.fadeIntoAction(this.idleTurn, 0.1, REPLACE)
                 }
-                // do this on crucial frame, not on animation complete
-                // this.gameObject.transform.rotateY(Math.PI)
             }
             if ( inputs.forwardWasPressed) {
-                // if (this.rifleMesh && this.rifleOnBackMesh) {
-                //     this.rifleOnBackMesh.visible = true
-                //     this.rifleMesh.visible = false
-                // }
                 this.fadeIntoAction(this.run, 0.2, REPLACE)
                 Avern.Sound.fxHandler.currentTime = 0
                 Avern.Sound.fxHandler.play()
@@ -315,7 +311,11 @@ class Body extends GameplayComponent {
                 } else if (inputs.right && this.targeting) {
                     this.fadeIntoAction(this.strafeRight, 0.1, REPLACE)
                 } else {
-                    if (this.action != this.idle) this.fadeIntoAction(this.idle, 0.1, REPLACE)
+                    if (this.inCombat) {
+                        if (this.action != this.idleCombat) this.fadeIntoAction(this.idleCombat, 0.1, REPLACE)
+                    } else {
+                        if (this.action != this.idle) this.fadeIntoAction(this.idle, 0.1, REPLACE)
+                    }
                     Avern.Sound.fxHandler.pause()
                 }
             }        
@@ -341,13 +341,17 @@ class Body extends GameplayComponent {
                 Avern.Sound.fxHandler.pause()
 
                 this.fadeIntoAction(this[data.action.animation],0.1, REPLACE)
-                // if (this.rifleMesh && this.rifleOnBackMesh && data.action.id !== "set_land_mine") {
-                //     this.rifleMesh.visible = true
-                //     this.rifleOnBackMesh.visible = false
-                // }
-
                 break;
-
+            case "enter_combat":
+                console.log("Enter combat!")
+                this.inCombat = true
+                this.fadeIntoAction(this.idleCombat, 0.1, REPLACE)
+                break;
+            case "end_combat":
+                console.log("Exit combat (Body)")
+                this.inCombat = false
+                this.fadeIntoAction(this.idle, 0.1, REPLACE)
+                break;
             case "player_receive_heavy_damage":
                 if (this.action.canInterrupt) {
                     this.fadeIntoAction(this.react, 0.2, RESET)
