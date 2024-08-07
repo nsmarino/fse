@@ -135,7 +135,7 @@ class Targetable extends GameplayComponent {
         this.addObserver(Avern.Player.getComponent(Body))
         this.addObserver(Avern.Player.getComponent(FollowCamera))    
         this.addObserver(Avern.Player.getComponent(CombatMode))
-        // this.addObserver(Avern.Player.getComponent(Actions))
+        this.addObserver(Avern.Player.getComponent(Actions))
     }
 }
 

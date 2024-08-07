@@ -23,7 +23,7 @@ const Config = {
         include: true,
         jumpHeight: 14,
         components: [
-            // Actions,
+            Actions,
             CombatMode,
             Interaction,
             FollowCamera,

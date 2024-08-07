@@ -308,7 +308,7 @@ class Enemy extends GameplayComponent {
           if(!Avern.State.playerDead && this.checkTarget()) {
             switch(this.enemyType) {
               case "sword":
-                this.emitSignal("monster_attack", {damage: 0, percentage: 0.5})
+                this.emitSignal("monster_attack", {damage: 10, percentage: 0.5})
                 break;
               case "bow":
                 const projectileDestination = new THREE.Vector3().copy(Avern.Player.transform.position)

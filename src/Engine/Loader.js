@@ -31,6 +31,7 @@ import IdleCombat from "../../assets/anims/mixamo/IdleCombat.glb"
 import StrafeRight from "../../assets/anims/mixamo/StrafeRight.glb"
 import StrafeLeft from "../../assets/anims/mixamo/StrafeLeft.glb"
 import Die from "../../assets/anims/mixamo/Die.glb"
+import SimpleAttack from "../../assets/anims/mixamo/SimpleAttack.glb"
 
 import Enemy from "../Components/Game/NonPlayer/Enemy";
 import Targetable from "../Components/Game/NonPlayer/Targetable";
@@ -63,7 +64,8 @@ const mixamoAnims = [
   StandTurn,
   StrafeLeft,
   StrafeRight,
-  Die
+  Die,
+  SimpleAttack
 ]
 
 class Loader {
@@ -484,6 +486,7 @@ class Loader {
                 range: 40,
                 primed: false,
                 assignment: null,
+                locked: true,
                 primeAnimation: "load",
                 animation: "shoot",
                 primaryModifier: "Energy Cost: 20",
@@ -502,6 +505,7 @@ class Loader {
                 range: 5,
                 primed: false,
                 assignment: null,
+                locked: true,
                 primeAnimation: "load",
                 animation: "slash",
                 primaryModifier: "Energy Cost: 0",

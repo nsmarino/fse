@@ -13,6 +13,7 @@ import Inventory from './Inventory';
 import gsap from "gsap"
 import { get } from "svelte/store"
 import {generateCapsuleCollider} from "../../../helpers"
+import CombatMode from './CombatMode';
 
 const RESET = "RESET"
 const REPLACE = "REPLACE"
@@ -97,7 +98,7 @@ class Body extends GameplayComponent {
             ]
             for (const weaponName of WeaponNames) {
                 const weapon = this.gltf.scene.getObjectByName(weaponName)
-                weapon.visible = false
+                weapon.visible = true
             }
 
             this.transform.add(this.gltf.scene)
@@ -154,13 +155,21 @@ class Body extends GameplayComponent {
                 anim: this.setUpAnim(clips, "RightStrafe", true, false),
                 crucialFrame: null,
                 canInterrupt: false,
-            },
+            }
             this.death = {
                 id: "death",
                 anim: this.setUpAnim(clips, "Die", false, true),
                 crucialFrame: null,
                 canInterrupt: false,
             }
+            this.simpleAttack = {
+                id: "simple_attack",
+                anim: this.setUpAnim(clips, "SimpleAttack", false, true, 1),
+                crucialFrame: 10,
+                canInterrupt: false,
+            }
+
+
             this.action = this.idle
             this.fadeIntoAction(this.action, 0, false)
 
@@ -204,22 +213,23 @@ class Body extends GameplayComponent {
                 }
                 this.gameObject.transform.rotateY(Math.PI)
                 break;
-            case this.drink.anim:
-                this.emitSignal("player_heal")
-            case this.shoot.anim:
-            case this.fire.anim:
-            case this.thrust_slash.anim:
-            case this.pommel_smack.anim:
-            case this.lose_yourself.anim:
-            case this.open_artery.anim:
-            case this.slash.anim:
-            case this.club.anim:
+            // case this.drink.anim:
+            //     this.emitSignal("player_heal")
+            // case this.shoot.anim:
+            // case this.fire.anim:
+            // case this.thrust_slash.anim:
+            // case this.pommel_smack.anim:
+            // case this.lose_yourself.anim:
+            // case this.open_artery.anim:
+            // case this.slash.anim:
+            // case this.club.anim:
+            case this.simpleAttack.anim:
                 if (inputs.forward) {
                     this.fadeIntoAction(this.run, 0.1, REPLACE)
                 } else if (inputs.back) {
                     this.fadeIntoAction(this.runBack, 0.1, REPLACE)
                 } else {
-                    this.fadeIntoAction(this.idle, 0.1, REPLACE)
+                    this.fadeIntoAction(this.idleCombat, 0.1, REPLACE)
                 }
                 if (inputs.forward || inputs.back || (inputs.left && this.targeting) || (inputs.right && this.targeting) ) Avern.Sound.fxHandler.play()
                 this.movementLocked = false
@@ -326,8 +336,6 @@ class Body extends GameplayComponent {
     onSignal(signalName, data={}) {
         switch(signalName) {
             case "casting_start":
-                // this.rifleMesh.visible = true
-                // this.rifleOnBackMesh.visible = false
                 this.fadeIntoAction(this[data.animation], 0.1, REPLACE)
                 break;
             case "casting_finish":
@@ -350,15 +358,13 @@ class Body extends GameplayComponent {
             case "end_combat":
                 console.log("Exit combat (Body)")
                 this.inCombat = false
-                this.fadeIntoAction(this.idle, 0.1, REPLACE)
+                // this.fadeIntoAction(this.idle, 0.1, REPLACE)
                 break;
-            case "player_receive_heavy_damage":
-                if (this.action.canInterrupt) {
-                    this.fadeIntoAction(this.react, 0.2, RESET)
-                } else {
-                    this.fadeIntoAction(this.react)
-                }
-
+            case "combat_round":
+                this.movementLocked = true
+                Avern.Sound.fxHandler.pause()
+                this.fadeIntoAction(this.simpleAttack,0.1, REPLACE)
+                // this.fadeIntoAction(this[data.action.animation],0.1, REPLACE)
                 break;
             case "player_death":
                 this.fadeIntoAction(this.death, 0, REPLACE)
@@ -551,10 +557,11 @@ class Body extends GameplayComponent {
     }
 
     attachObservers(parent) {
-        // this.addObserver(parent.getComponent(Actions))
+        this.addObserver(parent.getComponent(Actions))
         this.addObserver(Avern.Interface.getComponent(InteractionOverlay))
         this.addObserver(parent.getComponent(Vitals))
         this.addObserver(parent.getComponent(Inventory))
+        this.addObserver(parent.getComponent(CombatMode))
         for (const enemy of Avern.State.Enemies) {
             this.addObserver(enemy.getComponent(Enemy))
         }

@@ -448,10 +448,10 @@
 }
 .numbers-container span {
   font-family: var(--sans);
-  color: var(--avern-dark-red);
-  font-size: 24px;
+  color:  var(--avern-gold);
+  font-size: 36px;
   -webkit-text-stroke-width: 1px;
-  -webkit-text-stroke-color: var(--avern-red);
+  -webkit-text-stroke-color: var(--avern-off-black);
   animation: showDamageNumber 1.5s linear forwards;
   display: inline-block;
 }
@@ -494,4 +494,16 @@
 
 .primed {
   color: red;
+}
+.spacebar-tooltip {
+
+  font-family:var(--serif); font-size: 10px; margin: auto; position: fixed; bottom: 0px; left: 50%; transform: translateX(-50%); 
+  opacity: 0.8;
+  background: var(--avern-input-gradient);
+  border-radius: 20px 20px 0 0;
+  padding: 5px 40px 6px;
+  &.active {
+    filter: brightness(140%);
+    transition: all 0.1s ease-in-out;
+    }
 }

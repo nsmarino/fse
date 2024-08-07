@@ -159,7 +159,7 @@ class Targeting extends GameplayComponent {
         }
         this.addObserver(parent.getComponent(Body))
         this.addObserver(parent.getComponent(FollowCamera))
-        // this.addObserver(parent.getComponent(Actions))
+        this.addObserver(parent.getComponent(Actions))
         this.addObserver(parent.getComponent(CombatMode))
     }
 }

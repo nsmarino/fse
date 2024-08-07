@@ -23,7 +23,6 @@ class CombatMode extends GameplayComponent {
         const inputs = Avern.Inputs.getInputs()
 
         if ( inputs.interact && !this.inCombat) {
-            console.log("Interact, not in combat")
             if (this.target && this.targetCanBeAttacked) {
                 this.inCombat = true
                 this.combatTicking = true
@@ -31,7 +30,6 @@ class CombatMode extends GameplayComponent {
             }
         }
         if (this.inCombat && this.combatTicking) {
-            console.log("Tick inCombat")
             if (this.tick < this.roundInterval) {
                 this.tick += delta
             } else {
@@ -69,22 +67,24 @@ class CombatMode extends GameplayComponent {
                 this.targetDistance = Avern.Player.transform.position.distanceTo(data.object.transform.position)
                 break;
             case "clear_target":
-                console.log("Clear target")
                 this.target = false
                 // if (blah blah blah)
                 this.inCombat = false // refine later to only leave combat if untargeted by all enemies
                 this.emitSignal("end_combat")
                 break;
             case "queue_action":
-                console.log("Next Action")
+                break;
+            case "action_crucial_frame":
+                break;
+            case "finish_attack_anim":
+                this.combatTicking = true
                 break;
         }
     }
 
     attachObservers(parent) {
         this.addObserver(parent.getComponent(Body))
-
-        // this.addObserver(parent.getComponent(Actions))
+        this.addObserver(parent.getComponent(Actions))
         // this.addObserver(parent.getComponent(Vitals))
         // this.addObserver(parent.getComponent(Inventory))
         // for (const enemy of Avern.State.Enemies) {

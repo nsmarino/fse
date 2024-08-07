@@ -263,7 +263,7 @@
 
       </div>
     </div>
-    <div style="font-family:var(--serif); font-size: 12px; margin: auto; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);">[SPACE] - Interact / Attack</div>
+    <div id="interact" class="spacebar-tooltip" style="">[SPACE] - Interact / Attack</div>
 
   </div>
   <style>

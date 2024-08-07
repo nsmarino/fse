@@ -43,7 +43,7 @@ class Inputs {
             },
         
             interact: {
-                code:"Space",
+                code: "Space",
                 name: "Space",
                 pressed: false,
 
@@ -529,10 +529,6 @@ class Inputs {
     }
 
     handleDown(code) {
-        // if (document.querySelector(`#${code}`)) {
-        //     document.querySelector(`#${code}`).classList.add("active")
-        // }
-
         for (const property in this.config) {
             if (this.config[property].code === code) {
                 if (document.querySelector(`#${property}`)) {
